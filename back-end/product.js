@@ -23,7 +23,7 @@ app.get('/api/cart', (req, res) => {
 
 app.post('/api/cart/:id', (req, res) => {
   console.log("In post cart");
-  id = req.params.id;
+  let id = parseInt(req.params.id);
   const foundItem = cart.find(item => item.id == id);
   if (foundItem) {
     foundItem.quantity += 1;
@@ -43,10 +43,10 @@ app.post('/api/cart/:id', (req, res) => {
 
 app.put('/api/cart/:id/:quantity', (req, res) => {
   console.log("In put");
-  let id = req.params.id;
+  let id = parseInt(req.params.id);
   const foundItem = cart.find(item => item.id == id);   
   if (foundItem) {
-      let quantity = req.params.quantity;
+      let quantity = parseInt(req.params.quantity);
       if (quantity == 0) {
         let removeIndex = cart.map(deleteItem => {
             return deleteItem.id;
@@ -70,7 +70,7 @@ app.put('/api/cart/:id/:quantity', (req, res) => {
 
 app.delete('/api/cart/:id', (req, res) => {
   console.log("In delete cart");
-  let id = req.params.id;
+  let id = parseInt(req.params.id);
   let removeIndex = cart.map(item => {
       return item.id;
     })
