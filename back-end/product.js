@@ -13,7 +13,7 @@ app.use(function(req, res, next) {
 app.use(express.static('public'));
 
 let products = [];
-let cart = [];
+let cart = []
 let id = 0;
 
 app.get('/api/cart', (req, res) => {
@@ -21,8 +21,74 @@ app.get('/api/cart', (req, res) => {
   res.send(cart);
 });
 
+app.post('/api/cart/:id', (req, res) => {
+  console.log("In post cart");
+  id = req.params.id;
+  const foundItem = cart.find(item => item.id == id);
+  if (foundItem) {
+    foundItem.quantity += 1;
+    res.send(foundItem);
+  }
+  else {
+      let item = {
+      id: id,
+      quantity: 1
+    };      
+    cart.push(item);
+    res.send(item);
+  }
+});
+
+
+
+app.put('/api/cart/:id/:quantity', (req, res) => {
+  console.log("In put");
+  let id = req.params.id;
+  const foundItem = cart.find(item => item.id == id);   
+  if (foundItem) {
+      let quantity = req.params.quantity;
+      if (quantity == 0) {
+        let removeIndex = cart.map(deleteItem => {
+            return deleteItem.id;
+        })
+        .indexOf(id);
+        cart.splice(removeIndex, 1);
+        res.sendStatus(200);
+        return;
+      }
+      else {
+          foundItem.quantity = quantity;
+          res.send(foundItem);
+      }
+  }
+  else {
+    res.status(404)
+      .send("Sorry, that product is not in the cart");
+    return;
+  }
+});
+
+app.delete('/api/cart/:id', (req, res) => {
+  console.log("In delete cart");
+  let id = req.params.id;
+  let removeIndex = cart.map(item => {
+      return item.id;
+    })
+    .indexOf(id);
+  if (removeIndex === -1) {
+    res.status(404)
+      .send("Sorry, that product doesn't exist");
+    return;
+  }
+  cart.splice(removeIndex, 1);
+  res.sendStatus(200);
+});
+
+
+
+
 app.get('/api/products', (req, res) => {
-  console.log("In get");
+  console.log("In get products");
   res.send(products);
 });
 
@@ -43,7 +109,7 @@ app.get('/api/products/:id', (req, res) => {
 })
 
 app.post('/api/products', (req, res) => {
-  console.log("In post");
+  console.log("In post products");
   id = id + 1;
   let product = {
     id: id,
@@ -56,7 +122,7 @@ app.post('/api/products', (req, res) => {
 
 
 app.delete('/api/products/:id', (req, res) => {
-  console.log("In delete");
+  console.log("In delete products");
   let id = parseInt(req.params.id);
   let removeIndex = products.map(product => {
       return product.id;
