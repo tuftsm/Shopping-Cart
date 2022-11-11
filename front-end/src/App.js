@@ -45,6 +45,32 @@ function App() {
       setError("error adding to cart" + error);
     }
   }
+  
+  const removeCart = async(item) => {
+    try {
+      await axios.delete("/api/cart/" + item.id);
+    } catch(error) {
+      setError("error removing from cart" + error);
+    }
+  }
+  
+  const increaseCart = async(item) => {
+    try {
+      let quantity = item.quantity + 1;
+      await axios.put("/api/cart/" + item.id + "/" + quantity);
+    } catch(error) {
+      setError("error decreasing" + error);
+    }
+  }
+  
+  const decreaseCart = async(item) => {
+    try {
+      let quantity = item.quantity - 1;
+      await axios.put("/api/cart/" + item.id + "/" + quantity);
+    } catch(error) {
+      setError("error decreasing" + error);
+    }
+  }  
 
   // fetch ticket data
   useEffect(() => {
@@ -63,6 +89,21 @@ function App() {
     await addCart(product);
     fetchCart();
   }
+  
+  const removeFromCart = async(item) => {
+    await removeCart(item);
+    fetchCart();
+  }
+  
+  const increase = async(item) => {
+    await increaseCart(item);
+    fetchCart();
+  }
+
+  const decrease = async(item) => {
+    await decreaseCart(item);
+    fetchCart();
+  }  
 
   // render results
   return (
@@ -72,11 +113,14 @@ function App() {
       {cart.map( item => (
         <div key={item.id}>
             {item.id}, {item.quantity}
+            <button onClick={e => decrease(item)}> - </button>
+            <button onClick={e => increase(item)}> + </button>
+            <button onClick={e => removeFromCart(item)}>Remove From Cart</button>          
         </div>
       ))}         
       <h1>Products</h1>
       {products.map( product => (
-        <div key={product.id} className="product">
+        <div key={product.id}>
             {product.name}, {product.price}
           <button onClick={e => addToCart(product)}>Add To Cart</button>
         </div>
