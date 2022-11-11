@@ -6,6 +6,7 @@ import 'bootstrap/dist/css/bootstrap.css';
 import Container from 'react-bootstrap/Container';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
+import {Cart} from './component/cart.js';
 
 function App() {
   // setup state
@@ -14,6 +15,8 @@ function App() {
   const [error, setError] = useState("");
   const [name, setName] = useState("");
   const [price, setPrice] = useState("");
+  const [product, setProduct] = useState([]);
+  const [update, setUpdate] = useState(true);
 
   const fetchProducts = async() => {
     try {      
@@ -73,14 +76,6 @@ function App() {
       setError("error decreasing" + error);
     }
   }  
-  
-  const getName = async(item) => {
-    try {
-      await axios.get("/api/cart/" + item.id);
-    } catch (error) {
-      setError("error decreasing" + error);
-    }
-  }
 
   // fetch ticket data
   useEffect(() => {
@@ -115,11 +110,38 @@ function App() {
     fetchCart();
   }  
   
+  const getName = async(item) => {
+    try {
+      console.log("output item: ",item);
+      let output = await axios.get("/api/products/" + item.id);
+      console.log("after axios");
+      console.log("worked output: ", output.data);
+      console.log("worked output name:", output.data.name);
+      return output.data.name;
+    } catch (error) {
+      console.log("FAILED TO RUN");
+      setError("error getName" + error);
+    }
+  }
+  
   const idToName = async(item) => {
-    const data = getName(item);
+    let data = getName(item);
+    console.log("DATA: ", data);
+    console.log("DATA.NAME",data.name);
     return data.name;
+  };
+  
+  const updateCart = () => {
+    setUpdate(true);
   }
 
+  useEffect(() => {
+    if(update) {
+      fetchCart();
+      setUpdate(false);
+    }
+    
+  }, [update]);
 
 
   // render results
@@ -138,14 +160,7 @@ function App() {
         </Col>
         <Col>
           <h1>Cart</h1>
-          {cart.map( item => (
-            <div key={item.id}>
-                {idToName(item)}, {item.id}, {item.quantity}
-                <button onClick={e => decrease(item)}> - </button>
-                <button onClick={e => increase(item)}> + </button>
-                <button onClick={e => removeFromCart(item)}>Remove From Cart</button>          
-            </div>
-          ))}     
+              <Cart items = {cart} setError = {setError} updateCart = {updateCart}/>
         </Col>      
       </Row>
     </div>
